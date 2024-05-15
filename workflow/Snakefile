@@ -25,6 +25,16 @@ rule install_neural_plexer_apptainer:
     apptainer build {output} docker://drailab/neuralplexer 
     """
 
+## download_neuralplexer_checkpoint_data:
+##    Will download 8.3 Gb of NeuralPlexer model data from Zenodo, containing 
+##    the model weights and testing data.
+rule download_neuralplexer_checkpoint_data:
+  output: "results/downloads/NeuralPlexerModelData.zip"
+  shell:
+    """
+    wget -O {output} https://zenodo.org/records/10373581/files/neuralplexermodels_downstream_datasets_predictions.zip?download=1
+    """
+
 ## help:
 ##    Show the help.
 ##
