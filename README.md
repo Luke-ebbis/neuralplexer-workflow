@@ -1,6 +1,8 @@
-# snakemake-pixi
+# NeuralPlexer workflow
 
-Building snakemake workflows with pixi ✨
+Predicting the interaction between ligands and proteins with NeuralPlexer, a
+deeplearning tool by [Qiao _et al._
+2024](https://www.nature.com/articles/s42256-024-00792-z).
 
 ## Installation
 
