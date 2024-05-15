@@ -1,26 +1,44 @@
 ## NeuralPlexer workflow.
 ## 
-## A workflow to predict the interaction between proteins and Ligands using NeuralPlexer.
+## A workflow to predict the interaction between proteins and Ligands using
+## NeuralPlexer.
 ## 
 ## Rules
 ## =====
 ## 
 
 
+## install_neural_plexer_apptainer:
+##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
+rule install_neural_plexer_apptainer:
+  """Build the NeuralPlexer container
+
+  Documentation:
+    See [docs](https://apptainer.org/docs/user/latest/build_a_container.html)
+    for more information.
+  """
+  output: "results/dependencies/neuralplexer.sif"
+  shell:
+    """
+    # the Docker command that would've done this is
+    # docker pull drailab/neuralplexer
+    apptainer build {output} docker://drailab/neuralplexer 
+    """
+
 ## help:
 ##    Show the help.
 ##
 rule help:
-    input: "workflow/Snakefile"
-    shell:
-        "sed -n 's/^##//p' {input}"
+  input: "workflow/Snakefile"
+  shell:
+      "sed -n 's/^##//p' {input}"
 
 ## clean:                     
 ##    Clean all outputs from the results folder.
 ##
 rule clean:
-    shell:
-        "rm -rf results/*"
+  shell:
+      "rm -rf results/*"
 
 ## build_overview:            
 ##    Print the directed acyclic graph.
