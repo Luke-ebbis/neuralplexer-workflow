@@ -18,7 +18,7 @@ rule install_neural_plexer_apptainer:
     See [docs](https://apptainer.org/docs/user/latest/build_a_container.html)
     for more information.
   """
-  output: "results/dependencies/neuralplexer.sif"
+  output: "results/dependencies/neuralplexer/neuralplexer.sif"
   shell:
     """
     # the Docker command that would've done this is
@@ -35,6 +35,18 @@ rule download_neuralplexer_checkpoint_data:
   shell:
     """
     wget -O {output} https://zenodo.org/records/10373581/files/neuralplexermodels_downstream_datasets_predictions.zip?download=1
+    """
+
+## Unzip the downloaded neuralplexer data:
+##    The dataset contains the weights and the test data.
+##
+rule unzip_neuralplexer_checkpoint_data:
+  input: "results/downloads/NeuralPlexerModelData.zip"
+  output: directory("results/dependencies/neuralplexer/data")
+  shell:
+    """
+    mkdir {output}
+    unzip {input} -d {output}
     """
 
 ## help:
