@@ -10,6 +10,7 @@
 
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
+##
 rule install_neural_plexer_apptainer:
   """Build the NeuralPlexer container
 
@@ -28,6 +29,7 @@ rule install_neural_plexer_apptainer:
 ## download_neuralplexer_checkpoint_data:
 ##    Will download 8.3 Gb of NeuralPlexer model data from Zenodo, containing 
 ##    the model weights and testing data.
+##
 rule download_neuralplexer_checkpoint_data:
   output: "results/downloads/NeuralPlexerModelData.zip"
   shell:
