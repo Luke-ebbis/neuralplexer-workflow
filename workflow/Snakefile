@@ -38,7 +38,9 @@ rule download_neuralplexer_checkpoint_data:
     """
 
 ## Unzip the downloaded neuralplexer data:
-##    The dataset contains the weights and the test data.
+##    The dataset contains the weights and the test data. In total 24 GB. Of
+##    which the weights (data/neuralplexermodels_downstream_datasets_predictions
+##    /models/complex_structure_prediction.ckp) make up 2.8 Gb.
 ##
 rule unzip_neuralplexer_checkpoint_data:
   input: "results/downloads/NeuralPlexerModelData.zip"
