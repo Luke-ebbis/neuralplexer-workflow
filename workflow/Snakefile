@@ -6,7 +6,11 @@
 ## Rules
 ## =====
 ## 
-
+INPUTS=[name for name in os.listdir("data/")]
+rule all:
+  input:
+    expand("results/data/{jobname}/output",
+        jobname=INPUTS)
 
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
@@ -54,6 +58,41 @@ rule unzip_neuralplexer_checkpoint_data:
     """
 
 
+rule run_neural_plexer:
+  """neuralplexer rule
+
+  note -- for now only sdf files are supported.
+  """
+  input:
+    image="results/dependencies/neuralplexer/neuralplexer.sif",
+    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
+    jobdir="data/{jobname}"
+    # receptor="data/{jobname}/{jobname}.pdb",
+    # ligand=expand("data/{jobname}/{ligandName}.sif",
+        # ligandName=glob_wildcards("data/{wildcards.jobname}/{ligandName}.sif").ligandName)
+  output:
+    directory("results/data/{jobname}/output")
+  shell:
+    """
+    mkdir {output} -p
+    RECEPTOR="$(ls {input.jobdir}/*pdb)"
+    # CHATJIPPITY
+    LIGAND="$(ls {input.jobdir}/*sdf | awk '{{printf "%s|", $0}}' | awk '{{sub(/\|$/,"")}}1')"
+
+
+    echo "Analysing the binding between $RECEPTOR and $LIGAND files"
+    apptainer run --nv {input.image} neuralplexer-inference \
+       --task=batched_structure_sampling \
+       --input-receptor $RECEPTOR \
+       --input-ligand  $LIGAND \
+       --sampler=langevin_simulated_annealing \
+       --model-checkpoint {input.checkpoint} \
+       --n-samples 16 \
+       --chunk-size 4 \
+       --num-steps=40 \
+       --cuda \
+       --out-path {output}
+    """
 
 ## help:
 ##    Show the help.
@@ -68,7 +107,7 @@ rule help:
 ##
 rule clean:
   shell:
-      "rm -rf results/*"
+      "rm -rf results/data"
 
 ## build_overview:            
 ##    Print the directed acyclic graph.
