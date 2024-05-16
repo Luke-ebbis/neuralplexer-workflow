@@ -1,16 +1,23 @@
-## NeuralPlexer workflow.
+## NeuralPlexer workflow for investigating protein-ligand binding.
 ## 
 ## A workflow to predict the interaction between proteins and Ligands using
-## NeuralPlexer.
+## NeuralPlexer by Qiao et al. Right now, the usage of PDB files with SIF files
+## as ligands is supported.
 ## 
-## Rules
-## =====
-## 
+
 INPUTS=[name for name in os.listdir("data/")]
+
+## output:
+##    A directory with SIF files, holding the different possible locations of
+##    the predicted ligands, and the pdb file with the receptor structure.
 rule all:
   input:
     expand("results/data/{jobname}/output",
         jobname=INPUTS)
+
+## Rules
+## =====
+## 
 
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
@@ -57,7 +64,10 @@ rule unzip_neuralplexer_checkpoint_data:
     unzip {input} -d {output}
     """
 
-
+## run_neural_plexer:
+##    Run the neuralplexer tool on a job directory, with a pdb file as the 
+##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
+##
 rule run_neural_plexer:
   """neuralplexer rule
 
@@ -67,9 +77,6 @@ rule run_neural_plexer:
     image="results/dependencies/neuralplexer/neuralplexer.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobdir="data/{jobname}"
-    # receptor="data/{jobname}/{jobname}.pdb",
-    # ligand=expand("data/{jobname}/{ligandName}.sif",
-        # ligandName=glob_wildcards("data/{wildcards.jobname}/{ligandName}.sif").ligandName)
   output:
     directory("results/data/{jobname}/output")
   shell:
@@ -103,7 +110,8 @@ rule help:
       "sed -n 's/^##//p' {input}"
 
 ## clean:                     
-##    Clean all outputs from the results folder.
+##    Clean all outputs from the results folder. Ignores the downloaded
+##    NeuralPlexer dependencies.  
 ##
 rule clean:
   shell:
