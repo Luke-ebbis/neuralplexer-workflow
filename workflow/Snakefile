@@ -4,12 +4,14 @@
 ## NeuralPlexer by Qiao et al. Right now, the usage of PDB files with SIF files
 ## as ligands is supported.
 ## 
+## Workflow made by Sibbe Bakker
 
 INPUTS=[name for name in os.listdir("data/")]
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
 ##    the predicted ligands, and the pdb file with the receptor structure.
+##
 rule all:
   input:
     expand("results/data/{jobname}/output",
