@@ -10,6 +10,8 @@
 
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
+##    It uses the docker image as listed on 
+##    [drailab docker hub](https://hub.docker.com/r/drailab/neuralplexer).
 ##
 rule install_neural_plexer_apptainer:
   """Build the NeuralPlexer container
@@ -23,7 +25,7 @@ rule install_neural_plexer_apptainer:
     """
     # the Docker command that would've done this is
     # docker pull drailab/neuralplexer
-    apptainer build {output} docker://drailab/neuralplexer 
+    apptainer build {output} docker://drailab/neuralplexer
     """
 
 ## download_neuralplexer_checkpoint_data:
@@ -50,6 +52,8 @@ rule unzip_neuralplexer_checkpoint_data:
     mkdir {output}
     unzip {input} -d {output}
     """
+
+
 
 ## help:
 ##    Show the help.
