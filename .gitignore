@@ -219,3 +219,4 @@ cython_debug/
 data/
 results
 .snakemake
+resources/images
