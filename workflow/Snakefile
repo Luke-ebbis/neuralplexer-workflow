@@ -21,6 +21,14 @@ rule all:
 ## =====
 ## 
 
+rule install_sdf:
+  output:
+    touch("results/checkpoint/sdf_install")
+  shell:
+    """
+    cargo install scidataflow
+    """
+
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
 ##    It uses the docker image as listed on 
@@ -76,7 +84,7 @@ rule run_neural_plexer:
   note -- for now only sdf files are supported.
   """
   input:
-    image="results/dependencies/neuralplexer/neuralplexer.sif",
+    image="resources/images/np-updated.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobdir="data/{jobname}"
   output:
