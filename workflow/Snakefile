@@ -14,7 +14,7 @@ INPUTS=[name for name in os.listdir("data/")]
 ##
 rule all:
   input:
-    expand("results/data/{jobname}/output",
+    expand("results/data/{jobname}/output-fasta",
         jobname=INPUTS)
 
 ## Rules
@@ -84,11 +84,11 @@ rule run_neural_plexer:
   note -- for now only sdf files are supported.
   """
   input:
-    image="resources/images/np-updated.sif",
+    image="results/dependencies/neuralplexer/neuralplexer.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobdir="data/{jobname}"
   output:
-    directory("results/data/{jobname}/output")
+    directory("results/data/{jobname}/output-pdb")
   shell:
     """
     mkdir {output} -p
@@ -121,11 +121,11 @@ rule run_neural_plexer_fasta:
   note -- for now only sdf files are supported.
   """
   input:
-    image="results/dependencies/images/neuralplexer.sif",
+    image="results/dependencies/neuralplexer/neuralplexer.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobdir="data/{jobname}"
   output:
-    directory("results/data/{jobname}/output")
+    directory("results/data/{jobname}/output-fasta")
   shell:
     """
     mkdir {output} -p
