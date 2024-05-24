@@ -111,6 +111,42 @@ rule run_neural_plexer:
        --out-path {output}
     """
 
+## run_neural_plexer_fasta:
+##    Run the neuralplexer tool on a job directory, with a pdb file as the 
+##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
+##
+rule run_neural_plexer_fasta:
+  """neuralplexer rule
+
+  note -- for now only sdf files are supported.
+  """
+  input:
+    image="results/dependencies/images/neuralplexer.sif",
+    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
+    jobdir="data/{jobname}"
+  output:
+    directory("results/data/{jobname}/output")
+  shell:
+    """
+    mkdir {output} -p
+    LIGAND="$(ls {input.jobdir}/*sdf | awk '{{printf "%s|", $0}}' | awk '{{sub(/\|$/,"")}}1')"
+
+
+    FASTA=$(tail -n +2 data/IMPDH1/P47996.fasta | tr -d '\n')
+
+    apptainer run --nv {input.image}  neuralplexer-inference        \
+	  --task=batched_structure_sampling        \
+	  --input-receptor "$FASTA|$FASTA|$FASTA|$FASTA" \
+	  --input-ligand  data/withATP/ATP-2d.sdf \
+	  --sampler=langevin_simulated_annealing        \
+	  --model-checkpoint results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt      \
+	  --n-samples 10 \
+	  --chunk-size 1        \
+	  --num-steps=40        --cuda        \
+	  --out-path {output}
+     """
+
+
 ## help:
 ##    Show the help.
 ##

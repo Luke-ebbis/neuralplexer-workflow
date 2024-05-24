@@ -41,6 +41,17 @@ which the interaction is to be predicted.
 
 * `pixi run help` show the usage of the Snakefile
 
+
+
+Usage in a HPC context is done with the
+
+```
+pixi run jobscript
+```
+
+command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
+memory.
+
 ## About
 
 When `pixi run make` is executed, the snakemake pipeline sets up neuralplexer
