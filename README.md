@@ -50,7 +50,8 @@ pixi run jobscript
 ```
 
 command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
-memory.
+memory. When you the jobscript, make sure the SIF file is present in the results
+folder.
 
 ## About
 

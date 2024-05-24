@@ -137,7 +137,7 @@ rule run_neural_plexer_fasta:
     apptainer run --nv {input.image}  neuralplexer-inference        \
 	  --task=batched_structure_sampling        \
 	  --input-receptor "$FASTA|$FASTA|$FASTA|$FASTA" \
-	  --input-ligand  data/withATP/ATP-2d.sdf \
+	  --input-ligand  data/IMPDH1/ATP.sdf \
 	  --sampler=langevin_simulated_annealing        \
 	  --model-checkpoint results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt      \
 	  --n-samples 10 \
