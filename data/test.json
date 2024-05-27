@@ -10,7 +10,7 @@
     "ligands" : [
        {
         "molecule": {
-          "sdf": "IMPDH1/GMP.sdf",
+          "sdf": "data/lig_ref.sdf",
           "count": 2
         }
       }
@@ -25,32 +25,6 @@
       {
         "proteinChain": {
           "sequence": "FGGSGSGSGG",
-          "count": 1
-        }
-      }
-    ]
-  },
-
-  {
-    "name": "2024-05-13_20:16_two",
-    "parameters": {
-      "sampler":"langevin_simulated_annealing",
-      "n-samples": 10,
-      "chunk-size": 1,
-      "num-steps": 40
-    },
-    "ligands" : [
-       {
-        "molecule": {
-          "sdf": "IMPDH1/GMP.sdf",
-          "count": 1
-        }
-      }
-    ],
-    "sequences": [
-      {
-        "proteinChain": {
-          "sequence": "MSTLEDGFPADKLFAQGYSYTYDDVIFLPHFIDFSTDAVSLSTRLSRR",
           "count": 1
         }
       }
