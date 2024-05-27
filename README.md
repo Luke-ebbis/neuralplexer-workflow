@@ -64,6 +64,8 @@ data
 └── test.json
 ```
 
+This will make a folder in `results/data/<jobname>` with each job in it.
+
 
 * `pixi run make` runs the full workflow. You can supply arguments to
 `snakemake` as needed, such as `--cores 10`, if your process needs 10 cores.
