@@ -1,0 +1,34 @@
+[
+  {
+    "name": "2024-05-13_20:16",
+    "parameters": {
+      "sampler":"langevin_simulated_annealing",
+      "n-samples": 10,
+      "chunk-size": 1,
+      "num-steps": 40
+    },
+    "ligands" : [
+       {
+        "molecule": {
+          "sdf": "data/lig_ref.sdf",
+          "count": 2
+        }
+      }
+    ],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "FGGGFGGGGGSGSGSGG",
+          "count": 2
+        }
+      },
+      {
+        "proteinChain": {
+          "sequence": "FGGSGSGSGG",
+          "count": 1
+        }
+      }
+    ]
+  }
+]
+

@@ -1,0 +1,14 @@
+files:
+- path: resources/images/np-updated.sif
+  tracked: true
+  md5: bb220180ffa27f371edab9c00f1d3a0f
+  size: 5673738240
+  url: null
+remotes:
+  resources/images: !ZenodoAPI
+    name: neuralplexer-workflow
+    deposition_id: 11262449
+    bucket_url: https://zenodo.org/api/files/b5acfbd3-9aef-4d45-93e6-59f897912ac5
+metadata:
+  title: null
+  description: null

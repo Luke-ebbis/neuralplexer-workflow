@@ -18,28 +18,73 @@ pixi install
 
 ## Usage
 
-Each job has a directory in the `data/` folder:
+Each job has a `json` descriptor in the `data/` folder:
+
+```json
+[
+  {
+    "name": "2024-05-13_20:16",
+    "parameters": {
+      "sampler":"langevin_simulated_annealing",
+      "n-samples": 10,
+      "chunk-size": 1,
+      "num-steps": 40
+    },
+    "ligands" : [
+       {
+        "molecule": {
+          "sdf": "data/lig_ref.sdf",
+          "count": 2
+        }
+      }
+    ],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "FGGGFGGGGGSGSGSGG",
+          "count": 2
+        }
+      },
+      {
+        "proteinChain": {
+          "sequence": "FGGSGSGSGG",
+          "count": 1
+        }
+      }
+    ]
+  }
+]
+```
+
+The ligands are included like this.
 
 ```
-data/
-└── NATA1
-    ├── NATA1.fa
-    ├── NATA1.pdb
-    ├── Structure2D_COMPOUND_CID_1045.sdf
-    └── Structure2D_COMPOUND_CID_444493.sdf
+data
+├── lig_ref.sdf
+└── test.json
 ```
 
-Within each subdirectory of `data` must be at least 1 pdb and sdf file for
-which the interaction is to be predicted.
 
-
-* `pixi run make` runs the full workflow. You can supply arguments to `snakemake` as needed, such as `--cores 10`, if your process needs 10 cores.
+* `pixi run make` runs the full workflow. You can supply arguments to
+`snakemake` as needed, such as `--cores 10`, if your process needs 10 cores.
 
 * `pixi run test` runs a dry run (`-np`) of the workflow. 
 
-* `pixi run update_dag` updates the directed acyclic graph of the snakemake workflow and moves it to the `resources` folder.
+* `pixi run update_dag` updates the directed acyclic graph of the snakemake
+workflow and moves it to the `resources` folder.
 
 * `pixi run help` show the usage of the Snakefile
+
+
+Usage in a HPC context is done with the
+
+```
+pixi run jobscript
+```
+
+command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
+memory. When you the jobscript, make sure the SIF file is present in the results
+folder.
 
 ## About
 
