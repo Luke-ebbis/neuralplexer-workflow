@@ -220,3 +220,4 @@ data/
 results
 .snakemake
 resources/images
+/logs
