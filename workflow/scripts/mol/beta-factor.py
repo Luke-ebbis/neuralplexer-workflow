@@ -9,6 +9,7 @@ import mdtraj as md
 import itertools
 import logging
 import polars as pl
+from Bio.PDB import PDBParser 
 import seaborn as sns
 
 # Configure the logging system
@@ -24,7 +25,20 @@ console_handler.setFormatter(
     logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
 
-def deterimine_sasa(path: str):
+def load_pdb(path: str):
+    """Load a PDB structure
+
+    Parameters
+    ==========
+    path:
+        The path leading to the structure.
+    """
+    parser = PDBParser()
+    structure = parser.get_structure(path,
+                                     path)
+    return structure
+
+def deterimine_beta_factors(structure):
     """Get the SASA score per atom
 
     Parameters
@@ -32,18 +46,30 @@ def deterimine_sasa(path: str):
     path:
         The path leading to the structure.
     """
-    protein = md.load(path)
-    logger.info(f"loaded {protein} from {path}")
-    sasa_data = md.shrake_rupley(protein, mode="residue")
-    atoms, bonds = protein.top.to_dataframe()
-    atoms = atoms[['chainID', 'resName', 'resSeq']].drop_duplicates()
+    df = pl.DataFrame(schema={"frame":int,
+                              "residue" : str,
+                              "residue_number" : int,
+                              "betafactor" : int})
+    rows = []
+    for model in structure.get_models():
+        frame = model.full_id
+        print(frame)
+        for residue in model.get_residues():
+            residue_name = residue.resname
+            segment_id = residue.segid
+            for atom in residue.get_atoms():
+                atom_id = atom.full_id
+                beta = atom.bfactor
+                rows += [{ "frame": frame[1], "residue" : residue_name,
+                          "residue_number" : str(residue.id[1]), "betafactor" :
+                          float(beta)}]
+    df = pl.DataFrame(rows)
+    return df
 
-    atoms.insert(1,"SASA", sasa_data[0], True)
-    return pl.from_pandas(atoms)
 
 def plot_sasa(df):
-    return sns.lineplot(x='resSeq',
-                 y='SASA',
+    return sns.lineplot(x='residue_number',
+                 y='betafactor',
                  data=df)
 
 
@@ -61,7 +87,9 @@ def main():
     logger = logging.getLogger()
     logger.addHandler(console_handler)
     path = input_structure
-    df = deterimine_sasa(path)
+    pdb = load_pdb(path)
+    df = deterimine_beta_factors(pdb)
+    print(df)
     write_sasa_plot(df, output_plot)
     df.write_csv(output_analysis)
 
