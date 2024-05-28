@@ -33,7 +33,7 @@ def deterimine_sasa(path: str):
         The path leading to the structure.
     """
     protein = md.load(path)
-    logger.info(f"loaded {protein}")
+    logger.info(f"loaded {protein} from {path}")
     sasa_data = md.shrake_rupley(protein, mode="residue")
     atoms, bonds = protein.top.to_dataframe()
     atoms = atoms[['chainID', 'resName', 'resSeq']].drop_duplicates()
