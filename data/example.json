@@ -1,0 +1,84 @@
+[
+  {
+    "name": "small-test",
+    "parameters": {
+      "sampler":"langevin_simulated_annealing",
+      "n-samples": 10,
+      "chunk-size": 1,
+      "num-steps": 40
+    },
+    "ligands" : [
+       {
+        "molecule": {
+          "sdf": "data/lig_ref.sdf",
+          "count": 2
+        }
+      }
+    ],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "FGGGFGGGGGSGSGSGG",
+          "count": 2
+        }
+      },
+      {
+        "proteinChain": {
+          "sequence": "FGGSGSGSGG",
+          "count": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "6e5F",
+    "parameters": {
+      "sampler":"langevin_simulated_annealing",
+      "n-samples": 10,
+      "chunk-size": 1,
+      "num-steps": 40
+    },
+    "ligands" : [
+       {
+        "molecule": {
+          "sdf": "data/6e5f_L6T_A_1.sdf",
+          "count": 1
+        }
+      }
+    ],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "data/6e5fA.pdb",
+          "count": 1
+        }
+      }
+    ]
+  },
+  {
+    "name": "6e5F",
+    "parameters": {
+      "sampler":"langevin_simulated_annealing",
+      "n-samples": 20,
+      "chunk-size": 3,
+      "num-steps": 40
+    },
+    "ligands" : [
+       {
+        "molecule": {
+          "sdf": "data/6e5f_L6T_A_1.sdf",
+          "count": 1
+        }
+      }
+    ],
+    "sequences": [
+      {
+        "proteinChain": {
+          "sequence": "data/6e5fA.pdb",
+          "count": 1
+        }
+      }
+    ]
+  }
+]
+
