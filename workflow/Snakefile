@@ -94,6 +94,8 @@ rule run_neural_plexer:
     """
     python workflow/scripts/neuralplexer.py {input.image} \
       {input.checkpoint} {input.jobs} {output}
+    echo "Job completed!\n {output}"
+    cp {input.jobs} {output}
     """
 
 
