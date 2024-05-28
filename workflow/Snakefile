@@ -6,8 +6,39 @@
 ## 
 ## Workflow made by Sibbe Bakker
 
-INPUTS=[name.replace(".json", "") 
-  for name in os.listdir("data/") if name.endswith("json")]
+import json
+from pathlib import Path
+
+DATA_DIR = "data/"
+OUTDIR = "results/data/"
+
+JOBS=[name.replace(".json", "") 
+  for name in os.listdir(DATA_DIR) if name.endswith("json")]
+
+def parse_json(file_path: str) -> Dict:
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+        return data
+
+        
+def get_structures(path, outdir, type="prot_all.pdb", name_only=True):
+  json_files = [f"{DATA_DIR}/{name}"
+   for name in os.listdir(path) if name.endswith("json")]
+  structures = []
+  for json in json_files:
+    jobname = Path(json).stem
+    data = parse_json(json)
+    for job in data:
+      name = job["name"]
+      if name_only:
+        file=f"{name}{type}"
+      else:
+        file = f"{OUTDIR}{jobname}/{name}/{type}"
+      structures.append(file)
+  return structures
+
+
+STRUCTURES = get_structures(DATA_DIR, OUTDIR)
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
@@ -15,13 +46,24 @@ INPUTS=[name.replace(".json", "")
 ##
 rule all:
   input:
-    expand("results/data/{jobname}",
-        jobname=INPUTS)
+    expand("{out}{jobname}",
+        jobname=JOBS, out=OUTDIR),
+    expand("results/analysis/sasa/{name}.pdb.sasa.png", 
+        name=[Path(f).stem for f in STRUCTURES]),
+    expand("results/analysis/sasa/{name}.pdb.sasa.csv", 
+        name=[Path(f).stem for f in STRUCTURES])
+
+wildcard_constraints:
+    jobname="\w+" # equivalent to {sample,\w+} - limits to alphabet letters
 
 ## Rules
 ## =====
 ## 
 
+
+## install_sdf:
+##    Install the scidata flow tool using cargo.
+## 
 rule install_sdf:
   output:
     touch("results/checkpoint/sdf_install")
@@ -29,6 +71,21 @@ rule install_sdf:
     """
     cargo install scidataflow
     """
+
+## calculate_accesability_profile:
+##    Calculate the accessability profile of the calculated structures.
+## 
+rule calculate_accessability_profile:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_structures(DATA_DIR, OUTDIR, name_only=False)
+  output:
+    "results/analysis/sasa/{name}.pdb.sasa.png",
+    "results/analysis/sasa/{name}.pdb.sasa.csv",
+  script:
+    "scripts/mol/surface.py"
+
 
 ## install_neural_plexer_apptainer:
 ##    Installs the NeuralPlexer tool from the docker image as an Apptainer.
