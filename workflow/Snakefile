@@ -20,7 +20,10 @@ def parse_json(file_path: str) -> Dict:
         data = json.load(file)
         return data
 
-        
+
+def get_structures_2(wildcards):
+  return f"results/data/{wildcards.jobname}/{wildcards.name}/prot_all.pdb"
+
 def get_structures(path, outdir, type="prot_all.pdb", name_only=True):
   json_files = [f"{DATA_DIR}/{name}"
    for name in os.listdir(path) if name.endswith("json")]
@@ -33,12 +36,14 @@ def get_structures(path, outdir, type="prot_all.pdb", name_only=True):
       if name_only:
         file=f"{name}{type}"
       else:
-        file = f"{OUTDIR}{jobname}/{name}/{type}"
+        file = f"results/analysis/{jobname}/{name}"
       structures.append(file)
   return structures
 
 
-STRUCTURES = get_structures(DATA_DIR, OUTDIR)
+STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
+
+METRICS = ['sasa', 'plddt']
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
@@ -48,10 +53,9 @@ rule all:
   input:
     expand("{out}{jobname}",
         jobname=JOBS, out=OUTDIR),
-    expand("results/analysis/sasa/{name}.pdb.sasa.png", 
-        name=[Path(f).stem for f in STRUCTURES]),
-    expand("results/analysis/sasa/{name}.pdb.sasa.csv", 
-        name=[Path(f).stem for f in STRUCTURES])
+    expand("{structure}.{metric}.csv",
+        structure=STRUCTURES,
+        metric=METRICS)
 
 wildcard_constraints:
     jobname="\w+" # equivalent to {sample,\w+} - limits to alphabet letters
@@ -72,6 +76,21 @@ rule install_sdf:
     cargo install scidataflow
     """
 
+## extract_plddt:
+##    Extract the plddt of the model.
+## 
+rule calculate_beta_factor_profile:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_structures_2
+  output:
+    "results/analysis/{jobname}/{name}.plddt.png",
+    "results/analysis/{jobname}/{name}.plddt.csv",
+  script:
+    "scripts/mol/beta-factor.py"
+
+
 ## calculate_accesability_profile:
 ##    Calculate the accessability profile of the calculated structures.
 ## 
@@ -79,10 +98,10 @@ rule calculate_accessability_profile:
   conda:
     "envs/mol.yml"
   input:
-    get_structures(DATA_DIR, OUTDIR, name_only=False)
+    get_structures_2
   output:
-    "results/analysis/sasa/{name}.pdb.sasa.png",
-    "results/analysis/sasa/{name}.pdb.sasa.csv",
+    "results/analysis/{jobname}/{name}.sasa.png",
+    "results/analysis/{jobname}/{name}.sasa.csv",
   script:
     "scripts/mol/surface.py"
 
