@@ -18,6 +18,10 @@ def parse_json(file_path: str) -> Dict:
 
 
 def check_environment():
+    """Check environment
+
+    Makes sure that the pixi installed binaries are available.
+    """
     if environ.get('PIXI_ENVIRONMENT_NAME') is None:
         raise EnvironmentError("Run this programme from a pixi setting.")
 
@@ -51,16 +55,46 @@ def make_jobs(job_data: Dict,
               cuda=True) -> List:
     """
 
-        apptainer run --nv {image}  neuralplexer-inference        \
-	  --task=batched_structure_sampling        \
-	  --input-receptor "$FASTA|$FASTA|$FASTA|$FASTA" \
-	  --input-ligand  data/IMPDH1/ATP.sdf \
-	  --sampler=langevin_simulated_annealing        \
-	  --model-checkpoint results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt      \
-	  --n-samples 10 \
-	  --chunk-size 1        \
-	  --num-steps=40        --cuda        \
-	  --out-path {output}
+    usage: neuralplexer-inference [-h] --task TASK [--sample-id SAMPLE_ID]
+                                  [--template-id TEMPLATE_ID] [--cuda]
+                                  [--model-checkpoint MODEL_CHECKPOINT]
+                                  [--input-ligand INPUT_LIGAND]
+                                  [--input-receptor INPUT_RECEPTOR]
+                                  [--input-template INPUT_TEMPLATE]
+                                  [--out-path OUT_PATH] [--n-samples N_SAMPLES]
+                                  [--chunk-size CHUNK_SIZE]
+                                  [--num-steps NUM_STEPS]
+                                  [--latent-model LATENT_MODEL] --sampler SAMPLER
+                                  [--start-time START_TIME]
+                                  [--max-chain-encoding-k MAX_CHAIN_ENCODING_K]
+                                  [--exact-prior] [--discard-ligand]
+                                  [--discard-sdf-coords] [--detect-covalent]
+                                  [--use-template] [--csv-path CSV_PATH]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --task TASK
+      --sample-id SAMPLE_ID
+      --template-id TEMPLATE_ID
+      --cuda
+      --model-checkpoint MODEL_CHECKPOINT
+      --input-ligand INPUT_LIGAND
+      --input-receptor INPUT_RECEPTOR
+      --input-template INPUT_TEMPLATE
+      --out-path OUT_PATH
+      --n-samples N_SAMPLES
+      --chunk-size CHUNK_SIZE
+      --num-steps NUM_STEPS
+      --latent-model LATENT_MODEL
+      --sampler SAMPLER
+      --start-time START_TIME
+      --max-chain-encoding-k MAX_CHAIN_ENCODING_K
+      --exact-prior
+      --discard-ligand
+      --discard-sdf-coords
+      --detect-covalent
+      --use-template
+      --csv-path CSV_PATH
 
     """
     Path(output_path).mkdir(parents=True, exist_ok=True)
@@ -76,10 +110,10 @@ def make_jobs(job_data: Dict,
         command += ["--out-path", output]
 
         receptor_string = receptor(job['sequences']) 
-        command += ["--input-receptor", f"\"{receptor_string}\""]
+        command += ["--input-receptor", f"{repr(receptor_string)}"]
 
         ligand_string = ligand(job['ligands']) 
-        command += ["--input-ligand", f"\"{ligand_string}\""]
+        command += ["--input-ligand", f"{repr(ligand_string)}"]
 
         command += ["--sampler", job['parameters']['sampler']]
         command += ["--n-samples", job['parameters']['n-samples']]
