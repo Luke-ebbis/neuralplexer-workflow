@@ -18,6 +18,10 @@ def parse_json(file_path: str) -> Dict:
 
 
 def check_environment():
+    """Check environment
+
+    Makes sure that the pixi installed binaries are available.
+    """
     if environ.get('PIXI_ENVIRONMENT_NAME') is None:
         raise EnvironmentError("Run this programme from a pixi setting.")
 
@@ -106,10 +110,10 @@ def make_jobs(job_data: Dict,
         command += ["--out-path", output]
 
         receptor_string = receptor(job['sequences']) 
-        command += ["--input-receptor", f"\"{receptor_string}\""]
+        command += ["--input-receptor", f"{repr(receptor_string)}"]
 
         ligand_string = ligand(job['ligands']) 
-        command += ["--input-ligand", f"\"{ligand_string}\""]
+        command += ["--input-ligand", f"{repr(ligand_string)}"]
 
         command += ["--sampler", job['parameters']['sampler']]
         command += ["--n-samples", job['parameters']['n-samples']]
