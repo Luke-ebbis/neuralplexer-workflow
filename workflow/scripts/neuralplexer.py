@@ -8,6 +8,7 @@ import json
 import subprocess
 from typing import Dict, List
 from os import environ
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 DESCRIPTION = "Wrapper to the neuralPlexer programme"
 
@@ -135,12 +136,15 @@ def find_next_item(lst, match_item):
         raise ValueError(f"Error: {str(e)}")
 
 
+def run_job(job):
+    cmd = " ".join(str(v) for v in job)
+    print(cmd)
+    subprocess.run(cmd, shell=True)
+
+
 def run_jobs(jobs):
-    # TODO paralelize this
-    for job in jobs:
-        cmd = " ".join(str(v) for v in job)
-        print(cmd)
-        subprocess.run(cmd, shell=True)
+    with ProcessPoolExecutor() as executor:
+        executor.map(run_job, jobs)
 
 
 def main():
