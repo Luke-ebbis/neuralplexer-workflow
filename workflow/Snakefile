@@ -85,7 +85,7 @@ rule run_neural_plexer:
   note -- for now only sdf files are supported.
   """
   input:
-    image="results/dependencies/neuralplexer/neuralplexer.sif",
+    image="resources/images/np-updated.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobs="data/{jobname}.json"
   output:
