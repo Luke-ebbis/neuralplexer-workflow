@@ -68,12 +68,14 @@ def deterimine_beta_factors(structure):
 
 
 def plot_sasa(df):
-    return sns.lineplot(x='residue_number',
-                 y='betafactor',
-                 data=df)
+    # https://stackoverflow.com/questions/64052747/plot-with-seaborn-not-show-all-in-x-axis
+    ax = sns.lineplot(x='residue_number', y='betafactor', data=df)
+    ax.set_xticklabels([])  
+    return ax
 
 
 def write_sasa_plot(df, path):
+
     fig=plot_sasa(df).get_figure()
     fig.savefig(path)
 
