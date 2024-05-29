@@ -43,7 +43,7 @@ def get_structures(path, outdir, type="prot_all.pdb", name_only=True, folder="an
 
 STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
 
-METRICS =['plddt'] #['sasa', 'plddt', "ramachandran", "clashes"]
+METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
@@ -87,7 +87,6 @@ checkpoint run_neural_plexer:
     python workflow/scripts/neuralplexer.py {input.image} \
       {input.checkpoint} {input.jobs} {output.structure}
     echo "Job completed!\n {output}"
-    cp {input.jobs} {output}
     """
 
 
@@ -128,7 +127,7 @@ rule calculate_clashes:
   conda:
     "envs/mol.yml"
   input:
-    get_structures_2
+    "results/data/{jobname}/{name}/prot_all.pdb",
   output:
     "results/analysis/{jobname}/{name}.clashes.csv",
   script:
@@ -141,7 +140,7 @@ rule calculate_ramachandran:
   conda:
     "envs/mol.yml"
   input:
-    get_structures_2
+    "results/data/{jobname}/{name}/prot_all.pdb",
   output:
     "results/analysis/{jobname}/{name}.ramachandran.png",
     "results/analysis/{jobname}/{name}.ramachandran.csv",
@@ -155,7 +154,7 @@ rule calculate_accessability_profile:
   conda:
     "envs/mol.yml"
   input:
-    get_structures_2
+    "results/data/{jobname}/{name}/prot_all.pdb",
   output:
     "results/analysis/{jobname}/{name}.sasa.png",
     "results/analysis/{jobname}/{name}.sasa.csv",
