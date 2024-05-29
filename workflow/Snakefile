@@ -9,20 +9,16 @@
 import json
 from pathlib import Path
 
+
 DATA_DIR = "data/"
 OUTDIR = "results/data/"
 
-JOBS=[name.replace(".json", "") 
-  for name in os.listdir(DATA_DIR) if name.endswith("json")]
 
 def parse_json(file_path: str) -> Dict:
     with open(file_path, 'r') as file:
         data = json.load(file)
         return data
 
-
-def get_structures_2(wildcards):
-  return f"results/data/{wildcards.jobname}/{wildcards.name}/prot_all.pdb"
 
 def get_structures(path, outdir, type="prot_all.pdb", name_only=True, folder="analysis"):
   json_files = [f"{DATA_DIR}/{name}"
@@ -43,7 +39,9 @@ def get_structures(path, outdir, type="prot_all.pdb", name_only=True, folder="an
 
 STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
 
+
 METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
+
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
@@ -54,6 +52,7 @@ rule all:
     expand("{structure}.{metric}.csv",
         structure=STRUCTURES,
         metric=METRICS)
+
 
 wildcard_constraints:
     jobname="\w+" # equivalent to {sample,\w+} - limits to alphabet letters
@@ -66,6 +65,7 @@ wildcard_constraints:
 ## run_neural_plexer:
 ##    Run the neuralplexer tool on a job directory, with a pdb file as the 
 ##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
+##    Each job within the job json file is parsed and ran in paralel.
 ##
 checkpoint run_neural_plexer:
   """neuralplexer rule
@@ -90,11 +90,6 @@ checkpoint run_neural_plexer:
     """
 
 
-def get_pdb_paths(wildcards):
-  checkpoints.run_neural_plexer.get(jobname=wildcards.jobname).output[0]
-  return f"{jobname}/{wildcards.name}/prot_all.pdb"
-
-
 ## install_sdf:
 ##    Install the scidata flow tool using cargo.
 ## 
@@ -105,6 +100,7 @@ rule install_sdf:
     """
     cargo install scidataflow
     """
+
 
 ## extract_plddt:
 ##    Extract the plddt of the model.
@@ -120,6 +116,7 @@ rule calculate_beta_factor_profile:
   script:
     "scripts/mol/beta-factor.py"
 
+
 ## calculate_clashes:
 ##    Determine the number of steric clashes.
 ## 
@@ -132,6 +129,7 @@ rule calculate_clashes:
     "results/analysis/{jobname}/{name}.clashes.csv",
   script:
     "scripts/mol/steric_clashes.py"
+
 
 ## calculate_ramachandran:
 ##    Perform a ramachandran analysis.
@@ -146,6 +144,7 @@ rule calculate_ramachandran:
     "results/analysis/{jobname}/{name}.ramachandran.csv",
   script:
     "scripts/mol/ramachandran.py"
+
 
 ## calculate_accesability_profile:
 ##    Calculate the accessability profile of the calculated structures.
@@ -193,6 +192,7 @@ rule download_neuralplexer_checkpoint_data:
     wget -O {output} https://zenodo.org/records/10373581/files/neuralplexermodels_downstream_datasets_predictions.zip?download=1
     """
 
+    
 ## Unzip the downloaded neuralplexer data:
 ##    The dataset contains the weights and the test data. In total 24 GB. Of
 ##    which the weights (data/neuralplexermodels_downstream_datasets_predictions
@@ -207,9 +207,6 @@ rule unzip_neuralplexer_checkpoint_data:
     unzip {input} -d {output}
     """
 
-OUTPUTS = [f"{file}/prot_all.pdb" for file in  get_structures(DATA_DIR, OUTDIR, name_only=False, folder="data")]
-
-
 
 ## help:
 ##    Show the help.
@@ -219,6 +216,7 @@ rule help:
   shell:
       "sed -n 's/^##//p' {input}"
 
+
 ## clean:                     
 ##    Clean all outputs from the results/data folder. Ignores the downloaded
 ##    NeuralPlexer dependencies.  
@@ -226,6 +224,7 @@ rule help:
 rule clean:
   shell:
       "rm -rf results/data"
+
 
 ## build_overview:            
 ##    Print the directed acyclic graph.

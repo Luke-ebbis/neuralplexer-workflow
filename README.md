@@ -93,6 +93,8 @@ folder.
 ## About
 
 When `pixi run make` is executed, the snakemake pipeline sets up neuralplexer
-and predicts each listed complex in `data`.
+and predicts each listed complex in `data`. Additionally, summary statistics
+are calculated and plotted as shown below. These summary statistics end up in
+`results/analysis`
 
 ![](resources/pipeline.png)
