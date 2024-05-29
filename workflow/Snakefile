@@ -24,7 +24,7 @@ def parse_json(file_path: str) -> Dict:
 def get_structures_2(wildcards):
   return f"results/data/{wildcards.jobname}/{wildcards.name}/prot_all.pdb"
 
-def get_structures(path, outdir, type="prot_all.pdb", name_only=True):
+def get_structures(path, outdir, type="prot_all.pdb", name_only=True, folder="analysis"):
   json_files = [f"{DATA_DIR}/{name}"
    for name in os.listdir(path) if name.endswith("json")]
   structures = []
@@ -36,14 +36,14 @@ def get_structures(path, outdir, type="prot_all.pdb", name_only=True):
       if name_only:
         file=f"{name}{type}"
       else:
-        file = f"results/analysis/{jobname}/{name}"
+        file = f"results/{folder}/{jobname}/{name}"
       structures.append(file)
-  return structures
+  return set(structures)
 
 
 STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
 
-METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
+METRICS =['plddt'] #['sasa', 'plddt', "ramachandran", "clashes"]
 
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
@@ -51,8 +51,6 @@ METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
 ##
 rule all:
   input:
-    # expand("{out}{jobname}",
-        # jobname=JOBS, out=OUTDIR),
     expand("{structure}.{metric}.csv",
         structure=STRUCTURES,
         metric=METRICS)
@@ -63,6 +61,36 @@ wildcard_constraints:
 ## Rules
 ## =====
 ## 
+
+
+## run_neural_plexer:
+##    Run the neuralplexer tool on a job directory, with a pdb file as the 
+##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
+##
+checkpoint run_neural_plexer:
+  """neuralplexer rule
+
+  note -- for now only sdf files are supported.
+  """
+  input:
+    image="resources/images/np-updated.sif",
+    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
+    jobs=expand("data/{jobname}.json",
+        jobname=glob_wildcards("data/{jobname}.json").jobname)
+  output:
+    dir = directory("results/data/{jobname}/"),
+  shell:
+    """
+    python workflow/scripts/neuralplexer.py {input.image} \
+      {input.checkpoint} {input.jobs} {output.dir}
+    echo "Job completed!\n {output}"
+    cp {input.jobs} {output}
+    """
+
+
+def get_pdb_paths(wildcards):
+  checkpoints.run_neural_plexer.get(jobname=wildcards.jobname).output[0]
+  return f"{jobname}/{wildcards.name}/prot_all.pdb"
 
 
 ## install_sdf:
@@ -83,7 +111,7 @@ rule calculate_beta_factor_profile:
   conda:
     "envs/mol.yml"
   input:
-    get_structures_2
+    "results/data/{jobname}/{name}/prot_all.pdb",
   output:
     "results/analysis/{jobname}/{name}.plddt.png",
     "results/analysis/{jobname}/{name}.plddt.csv",
@@ -177,28 +205,8 @@ rule unzip_neuralplexer_checkpoint_data:
     unzip {input} -d {output}
     """
 
-## run_neural_plexer:
-##    Run the neuralplexer tool on a job directory, with a pdb file as the 
-##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
-##
-rule run_neural_plexer:
-  """neuralplexer rule
+OUTPUTS = [f"{file}/prot_all.pdb" for file in  get_structures(DATA_DIR, OUTDIR, name_only=False, folder="data")]
 
-  note -- for now only sdf files are supported.
-  """
-  input:
-    image="resources/images/np-updated.sif",
-    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
-    jobs="data/{jobname}.json"
-  output:
-    directory("results/data/{jobname}/")
-  shell:
-    """
-    python workflow/scripts/neuralplexer.py {input.image} \
-      {input.checkpoint} {input.jobs} {output}
-    echo "Job completed!\n {output}"
-    cp {input.jobs} {output}
-    """
 
 
 ## help:
@@ -227,3 +235,6 @@ rule build_overview:
     """
     snakemake -c 1 --forceall --dag | dot -T{wildcards.fileformat} > {output}
     """
+
+
+
