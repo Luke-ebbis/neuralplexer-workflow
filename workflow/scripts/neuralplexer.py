@@ -4,10 +4,12 @@
 """
 
 import argparse
+import re
 import json
 import subprocess
 from typing import Dict, List
 from os import environ
+import os
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 DESCRIPTION = "Wrapper to the neuralPlexer programme"
@@ -164,12 +166,14 @@ def main():
                         help="Path to the JSON file to be parsed")
     parser.add_argument('output_path',
                         type=str,
-                        help="Where NP will write the results.")
+                        help="File where the structure ends up.")
     args = parser.parse_args()
     check_environment()
+    outpath = os.path.dirname(args.output_path)
 
+    new_path = re.sub(r'(.*/)[^/]+$', r'\1', outpath)
     job = parse_json(args.json_file)
-    jobs = make_jobs(job, args.image, args.model_checkpoint, args.output_path)
+    jobs = make_jobs(job, args.image, args.model_checkpoint, new_path)
     run_jobs(jobs)
 
 

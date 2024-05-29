@@ -78,11 +78,14 @@ checkpoint run_neural_plexer:
     jobs=expand("data/{jobname}.json",
         jobname=glob_wildcards("data/{jobname}.json").jobname)
   output:
-    dir = directory("results/data/{jobname}/"),
+    structure = "results/data/{jobname}/{name}/"
+  params:
+    jobname=lambda wildcards: wildcards.jobname,
+    name=lambda wildcards: wildcards.name
   shell:
     """
     python workflow/scripts/neuralplexer.py {input.image} \
-      {input.checkpoint} {input.jobs} {output.dir}
+      {input.checkpoint} {input.jobs} {output.structure}
     echo "Job completed!\n {output}"
     cp {input.jobs} {output}
     """
