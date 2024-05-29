@@ -10,3 +10,4 @@ dependencies:
   - polars
   - pymol-open-source
   - pyarrow
+  - mdanalysis
