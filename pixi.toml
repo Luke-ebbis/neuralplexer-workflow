@@ -8,7 +8,7 @@ platforms = ["linux-64"]
 
 
 [tasks]
-jobscript = "sbatch workflow/scripts/jobscript.sh"
+jobscript = "mkdir logs/slurm -p; sbatch workflow/scripts/jobscript.sh"
 make = "snakemake --use-conda -c 1"
 test = "snakemake --use-conda -c 1 -np"
 t = "tree -L 3"

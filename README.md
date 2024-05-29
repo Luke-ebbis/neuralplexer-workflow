@@ -64,7 +64,9 @@ data
 └── test.json
 ```
 
-This will make a folder in `results/data/<jobname>` with each job in it.
+This will make a folder in `results/data/<jobname>` with each job in it. Right
+now, the token limit seems to be 600 amino acid residues. At this point, the
+graphical card runs out of memory.
 
 
 * `pixi run make` runs the full workflow. You can supply arguments to
@@ -91,6 +93,8 @@ folder.
 ## About
 
 When `pixi run make` is executed, the snakemake pipeline sets up neuralplexer
-and predicts each listed complex in `data`.
+and predicts each listed complex in `data`. Additionally, summary statistics
+are calculated and plotted as shown below. These summary statistics end up in
+`results/analysis`
 
 ![](resources/pipeline.png)

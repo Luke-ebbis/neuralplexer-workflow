@@ -1,10 +1,98 @@
 files:
+- path: results/data/IMPDH1/output-fasta/prot_all.pdb
+  tracked: true
+  md5: a917ff7c8181474f9c32392583e6cdcc
+  size: 11833293
+  url: null
+- path: results/data/test/6e5F/prot_all.pdb
+  tracked: true
+  md5: f399c06ccc8fa40371ab592ecd4a550d
+  size: 1678323
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_6.sdf
+  tracked: false
+  md5: ce23d7a6e027819651ed27ce3744e667
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_4.sdf
+  tracked: false
+  md5: 5da43db80c29d5a74516b77801a9f19b
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_8.sdf
+  tracked: false
+  md5: 44ed6e0d16d4925b4310bbc1c30a6c85
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_2.sdf
+  tracked: false
+  md5: 9d8b103d7024e467098eb1942e74aa5c
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_9.sdf
+  tracked: false
+  md5: 85a5c631e1b13f4dbe2a6f350549ade0
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_7.sdf
+  tracked: false
+  md5: 09d7828d807eb1a02e885fb3ae0c7d2c
+  size: 5504
+  url: null
+- path: results/data/test/6e5F/lig_all.sdf
+  tracked: true
+  md5: c6ffd4f09919a32b68f5de8e220321bc
+  size: 48352
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_5.sdf
+  tracked: false
+  md5: bcdfae96e7dc0936019b35a3a0b24a14
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_1.sdf
+  tracked: false
+  md5: a43a659d3e2532385506457312dd13e0
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_all.sdf
+  tracked: true
+  md5: ac7a3220997aadd7d0931db46a878fbe
+  size: 55074
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_0.sdf
+  tracked: false
+  md5: 716884fb175d588909e9d0aa2eeb3467
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_3.sdf
+  tracked: false
+  md5: 578be69847c0ff541a4fb367fcbe5a7b
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/lig_ref.sdf
+  tracked: false
+  md5: 29abd019e76f9c89260c43228dc6104e
+  size: 5504
+  url: null
+- path: results/data/IMPDH1/output-fasta/input.pdb
+  tracked: true
+  md5: e6bd36b4afbbae52968422852982791f
+  size: 1153716
+  url: null
 - path: resources/images/np-updated.sif
   tracked: true
   md5: bb220180ffa27f371edab9c00f1d3a0f
   size: 5673738240
   url: null
 remotes:
+  results/data/test/6e5F: !ZenodoAPI
+    name: neuralplexer-workflow
+    deposition_id: 11262449
+    bucket_url: https://zenodo.org/api/files/b5acfbd3-9aef-4d45-93e6-59f897912ac5
+  results/data/IMPDH1/output-fasta: !ZenodoAPI
+    name: neuralplexer-workflow
+    deposition_id: 11262449
+    bucket_url: https://zenodo.org/api/files/b5acfbd3-9aef-4d45-93e6-59f897912ac5
   resources/images: !ZenodoAPI
     name: neuralplexer-workflow
     deposition_id: 11262449
