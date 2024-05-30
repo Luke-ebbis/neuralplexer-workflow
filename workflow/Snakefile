@@ -42,7 +42,7 @@ STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
 
 METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
 
-
+print(STRUCTURES)
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
 ##    the predicted ligands, and the pdb file with the receptor structure.
@@ -55,7 +55,7 @@ rule all:
 
 
 wildcard_constraints:
-    jobname="\w+" # equivalent to {sample,\w+} - limits to alphabet letters
+    jobname="[\w-]+" # equivalent to {sample,\w+} - limits to alphabet letters
 
 ## Rules
 ## =====
