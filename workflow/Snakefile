@@ -61,33 +61,7 @@ wildcard_constraints:
 ## =====
 ## 
 
-
-## run_neural_plexer:
-##    Run the neuralplexer tool on a job directory, with a pdb file as the 
-##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
-##    Each job within the job json file is parsed and ran in paralel.
-##
-checkpoint run_neural_plexer:
-  """neuralplexer rule
-
-  note -- for now only sdf files are supported.
-  """
-  input:
-    image="resources/images/np-updated.sif",
-    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
-    jobs=expand("data/{jobname}.json",
-        jobname=glob_wildcards("data/{jobname}.json").jobname)
-  output:
-    structure = "results/data/{jobname}/{name}/"
-  params:
-    jobname=lambda wildcards: wildcards.jobname,
-    name=lambda wildcards: wildcards.name
-  shell:
-    """
-    python workflow/scripts/neuralplexer.py {input.image} \
-      {input.checkpoint} {input.jobs} {output.structure}
-    echo "Job completed!\n {output}"
-    """
+localrules: calculate_beta_factor_profile, install_sdf, calculate_clashes, calculate_ramachandran, calculate_accesibility_profile, install_neural_plexer_apptainer, download_neuralplexer_checkpoint_data, help, clean, build_overview
 
 
 ## install_sdf:
@@ -207,6 +181,36 @@ rule unzip_neuralplexer_checkpoint_data:
     unzip {input} -d {output}
     """
 
+## run_neural_plexer:
+##    Run the neuralplexer tool on a job directory, with a pdb file as the 
+##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
+##
+checkpoint rule run_neural_plexer:
+  """neuralplexer rule
+
+  note -- for now only sdf files are supported.
+  """
+  input:
+    image="results/dependencies/neuralplexer/neuralplexer.sif",
+    checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
+    jobs="data/{jobname}.json"
+  output:
+    structure = "results/data/{jobname}/"
+  resources:
+    mem_mb=32000,
+    slurm_extra= "'--gres=gpu:a100:2'",
+    constraint="gpu",
+    tasks="1",
+    cpus_per_task=10,
+    mem="128G",
+    slurm_partition='gpu1',
+    runtime='1440',
+    slurm_account="mpmp_gpu",
+  shell:
+    """
+    python workflow/scripts/neuralplexer.py {input.image} \
+      {input.checkpoint} {input.jobs} {output}
+    """
 
 ## help:
 ##    Show the help.
