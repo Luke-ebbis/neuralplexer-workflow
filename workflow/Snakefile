@@ -88,6 +88,16 @@ rule run_neural_plexer:
     image="results/dependencies/neuralplexer/neuralplexer.sif",
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobs="data/{jobname}.json"
+  resources:
+    mem_mb=32000,
+    slurm_extra= "'--gres=gpu:a100:1'",
+    constraint="gpu",
+    tasks="1",
+    cpus_per_task=10,
+    mem="30G",
+    slurm_partition='gpu1',
+    runtime='1440',
+    slurm_account="mpmp_gpu",
   output:
     directory("results/data/{jobname}/")
   shell:
