@@ -141,7 +141,7 @@ def find_next_item(lst, match_item):
 def run_job(job):
     cmd = " ".join(str(v) for v in job)
     print(cmd)
-    #subprocess.run(cmd, shell=True)
+    subprocess.run(cmd, shell=True)
  
 
 def run_jobs(jobs):

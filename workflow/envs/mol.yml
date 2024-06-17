@@ -11,3 +11,4 @@ dependencies:
   - pymol-open-source
   - pyarrow
   - mdanalysis
+  - numpy

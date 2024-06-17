@@ -83,12 +83,10 @@ workflow and moves it to the `resources` folder.
 Usage in a HPC context is done with the
 
 ```
-pixi run jobscript
+pixi run slurm
 ```
 
-command, this will launch a 24 hour long job with 18 cores with 12800 mb of GPU
-memory. When you the jobscript, make sure the SIF file is present in the results
-folder.
+command, this will launch the hardware intensive snakemake tasks as SLURM jobs.
 
 ## About
 
