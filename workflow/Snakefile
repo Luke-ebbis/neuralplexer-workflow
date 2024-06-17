@@ -8,6 +8,7 @@
 
 import json
 from pathlib import Path
+import os
 
 
 DATA_DIR = "data/"
@@ -40,7 +41,12 @@ def get_structures(path, outdir, type="prot_all.pdb", name_only=True, folder="an
 STRUCTURES = get_structures(DATA_DIR, OUTDIR, name_only=False)
 
 
-METRICS = ['sasa', 'plddt', "ramachandran", "clashes"]
+METRICS = [
+  'sasa', 
+  'plddt',
+  "ramachandran",
+  "clashes"
+]
 
 print(STRUCTURES)
 ## output:
@@ -61,7 +67,14 @@ wildcard_constraints:
 ## =====
 ## 
 
-localrules: calculate_beta_factor_profile, install_sdf, calculate_clashes, calculate_ramachandran, calculate_accesibility_profile, install_neural_plexer_apptainer, download_neuralplexer_checkpoint_data, help, clean, build_overview
+localrules: 
+  calculate_beta_factor_profile, 
+  install_sdf,
+  calculate_clashes,
+  calculate_ramachandran, 
+  install_neural_plexer_apptainer, 
+  download_neuralplexer_checkpoint_data, calculate_accessability_profile,
+  help, clean, build_overview
 
 
 ## install_sdf:
@@ -76,63 +89,6 @@ rule install_sdf:
     """
 
 
-## extract_plddt:
-##    Extract the plddt of the model.
-## 
-rule calculate_beta_factor_profile:
-  conda:
-    "envs/mol.yml"
-  input:
-    "results/data/{jobname}/{name}/prot_all.pdb",
-  output:
-    "results/analysis/{jobname}/{name}.plddt.png",
-    "results/analysis/{jobname}/{name}.plddt.csv",
-  script:
-    "scripts/mol/beta-factor.py"
-
-
-## calculate_clashes:
-##    Determine the number of steric clashes.
-## 
-rule calculate_clashes:
-  conda:
-    "envs/mol.yml"
-  input:
-    "results/data/{jobname}/{name}/prot_all.pdb",
-  output:
-    "results/analysis/{jobname}/{name}.clashes.csv",
-  script:
-    "scripts/mol/steric_clashes.py"
-
-
-## calculate_ramachandran:
-##    Perform a ramachandran analysis.
-## 
-rule calculate_ramachandran:
-  conda:
-    "envs/mol.yml"
-  input:
-    "results/data/{jobname}/{name}/prot_all.pdb",
-  output:
-    "results/analysis/{jobname}/{name}.ramachandran.png",
-    "results/analysis/{jobname}/{name}.ramachandran.csv",
-  script:
-    "scripts/mol/ramachandran.py"
-
-
-## calculate_accesability_profile:
-##    Calculate the accessability profile of the calculated structures.
-## 
-rule calculate_accessability_profile:
-  conda:
-    "envs/mol.yml"
-  input:
-    "results/data/{jobname}/{name}/prot_all.pdb",
-  output:
-    "results/analysis/{jobname}/{name}.sasa.png",
-    "results/analysis/{jobname}/{name}.sasa.csv",
-  script:
-    "scripts/mol/surface.py"
 
 
 ## install_neural_plexer_apptainer:
@@ -181,11 +137,19 @@ rule unzip_neuralplexer_checkpoint_data:
     unzip {input} -d {output}
     """
 
+def get_neuralplexer_output_pdb(wildcards):
+  checkpoint_output = checkpoints.run_neural_plexer.get(**wildcards).output[0]
+  print(f"Checking {checkpoint_output}")
+  dirs = [f for f in os.listdir(checkpoint_output) if not f.startswith('.')]
+  out = [f"{checkpoint_output}/{d}/prot_all.pdb" for d in dirs]
+  return out
+
+
 ## run_neural_plexer:
 ##    Run the neuralplexer tool on a job directory, with a pdb file as the 
 ##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
 ##
-checkpoint rule run_neural_plexer:
+checkpoint run_neural_plexer:
   """neuralplexer rule
 
   note -- for now only sdf files are supported.
@@ -195,10 +159,10 @@ checkpoint rule run_neural_plexer:
     checkpoint="results/dependencies/neuralplexer/data/neuralplexermodels_downstream_datasets_predictions/models/complex_structure_prediction.ckpt",
     jobs="data/{jobname}.json"
   output:
-    structure = "results/data/{jobname}/"
+    directory("results/data/{jobname}/")
   resources:
     mem_mb=32000,
-    slurm_extra= "'--gres=gpu:a100:2'",
+    slurm_extra= "'--gres=gpu:a100:1'",
     constraint="gpu",
     tasks="1",
     cpus_per_task=10,
@@ -211,6 +175,7 @@ checkpoint rule run_neural_plexer:
     python workflow/scripts/neuralplexer.py {input.image} \
       {input.checkpoint} {input.jobs} {output}
     """
+
 
 ## help:
 ##    Show the help.
@@ -243,3 +208,60 @@ rule build_overview:
 
 
 
+## extract_plddt:
+##    Extract the plddt of the model.
+## 
+rule calculate_beta_factor_profile:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_pdb
+  output:
+    "results/analysis/{jobname}/{name}.plddt.png",
+    "results/analysis/{jobname}/{name}.plddt.csv",
+  script:
+    "scripts/mol/beta-factor.py"
+
+
+## calculate_clashes:
+##    Determine the number of steric clashes.
+## 
+rule calculate_clashes:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_pdb
+  output:
+    "results/analysis/{jobname}/{name}.clashes.csv",
+  script:
+    "scripts/mol/steric_clashes.py"
+
+
+## calculate_ramachandran:
+##    Perform a ramachandran analysis.
+## 
+rule calculate_ramachandran:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_pdb
+  output:
+    "results/analysis/{jobname}/{name}.ramachandran.png",
+    "results/analysis/{jobname}/{name}.ramachandran.csv",
+  script:
+    "scripts/mol/ramachandran.py"
+
+
+## calculate_accesability_profile:
+##    Calculate the accessability profile of the calculated structures.
+## 
+rule calculate_accessability_profile:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_pdb
+  output:
+    "results/analysis/{jobname}/{name}.sasa.png",
+    "results/analysis/{jobname}/{name}.sasa.csv",
+  script:
+    "scripts/mol/surface.py"

@@ -141,12 +141,12 @@ def find_next_item(lst, match_item):
 def run_job(job):
     cmd = " ".join(str(v) for v in job)
     print(cmd)
-    subprocess.run(cmd, shell=True)
-
+    #subprocess.run(cmd, shell=True)
+ 
 
 def run_jobs(jobs):
-    with ProcessPoolExecutor() as executor:
-        executor.map(run_job, jobs)
+    for job in jobs:
+        run_job(job)
 
 
 def main():
@@ -169,11 +169,10 @@ def main():
                         help="File where the structure ends up.")
     args = parser.parse_args()
     check_environment()
-    outpath = os.path.dirname(args.output_path)
-
-    new_path = re.sub(r'(.*/)[^/]+$', r'\1', outpath)
+    new_path = args.output_path
     job = parse_json(args.json_file)
     jobs = make_jobs(job, args.image, args.model_checkpoint, new_path)
+    print(f"Within {args.json_file}, there are {len(jobs)} neuralplexer jobs.")
     run_jobs(jobs)
 
 
