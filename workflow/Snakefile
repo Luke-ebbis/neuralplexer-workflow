@@ -58,6 +58,8 @@ rule all:
     expand("{structure}.{metric}.csv",
         structure=STRUCTURES,
         metric=METRICS),
+    expand("{structure}_contact",
+        structure=STRUCTURES),
      expand("{structure}/prot_lig_{number}_plip",
          structure=STRUCTURES,
          number = [0])
@@ -268,6 +270,20 @@ rule calculate_accessability_profile:
   script:
     "scripts/mol/surface.py"
 
+## calculate_contact_map:
+##    Determine the contact map.
+## 
+rule calculate_contact_map:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_pdb
+  output:
+    directory("results/analysis/{jobname}/{name}_contact")
+  shell:
+    """
+    python workflow/scripts/mol/distance.py {input} {output}
+    """
 
 rule setup_plip:
   conda:
