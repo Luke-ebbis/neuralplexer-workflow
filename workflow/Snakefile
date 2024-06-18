@@ -49,7 +49,6 @@ METRICS = [
   "clashes"
 ]
 
-print(STRUCTURES)
 ## output:
 ##    A directory with SIF files, holding the different possible locations of
 ##    the predicted ligands, and the pdb file with the receptor structure.
@@ -59,8 +58,9 @@ rule all:
     expand("{structure}.{metric}.csv",
         structure=STRUCTURES,
         metric=METRICS),
-    # expand("{structure}_plip",
-    #     structure=STRUCTURES)
+     expand("{structure}/prot_lig_{number}_plip",
+         structure=STRUCTURES,
+         number = [0])
 
 
 wildcard_constraints:
@@ -169,16 +169,6 @@ checkpoint run_neural_plexer:
     jobs="data/{jobname}.json"
   output:
     directory("results/data/{jobname}/")
-  resources:
-    mem_mb=32000,
-    slurm_extra= "'--gres=gpu:a100:1'",
-    constraint="gpu",
-    tasks="1",
-    cpus_per_task=10,
-    mem="128G",
-    slurm_partition='gpu1',
-    runtime='1440',
-    slurm_account="mpmp_gpu",
   shell:
     """
     python workflow/scripts/neuralplexer.py {input.image} \
@@ -284,6 +274,12 @@ rule setup_plip:
   shell:
     "wget -O {output} 'https://github.com/pharmai/plip/releases/download/v2.3.0/plip_v2.3.0.simg'"
 
+def get_merged_ligands(wildcards):
+  checkpoint_output = checkpoints.combine.get(**wildcards).output[0]
+  files = [f"{checkpoint_output}/{f}"for f in os.listdir(checkpoint_output) if
+    not f.startswith('.') and f.endswith(f"{wildcards.num}.pdb")]
+  return files
+
 checkpoint combine:
   conda:
     "envs/mol.yml"
@@ -294,15 +290,17 @@ checkpoint combine:
   script:
     "scripts/merge_sdf_pdb.py"
 
-# rule run_plip:
-#   conda:
-#     "envs/plip.yml"
-#   input:
-#     image="results/dependencies/plip.simg",
-#     structure=get_neuralplexer_output_pdb
-#   output:
-#     directory("results/analysis/{jobname}/{name}_plip")
-#   shell:
-#     "apptainer run {input.image} --file {input.structure} -o {output} -yvxpt"
-#
-#
+rule run_plip:
+  conda:
+    "envs/plip.yml"
+  input:
+    image="results/dependencies/plip.simg",
+    structure=get_merged_ligands
+  output:
+    directory("results/analysis/{jobname}/{name}/prot_lig_{num}_plip")
+  shell:
+    """
+    mkdir -p {output}
+    apptainer run {input.image} --file {input.structure} -o {output} -yvxpt
+    """
+
