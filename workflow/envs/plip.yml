@@ -1,0 +1,12 @@
+channels:
+  - conda-forge
+dependencies:
+  - pymol-open-source
+  - imagemagick
+  - apptainer
+  - biopython
+  - squashfuse 
+  - wget
+  - imagemagick
+  # - pip:
+  #   - plip
