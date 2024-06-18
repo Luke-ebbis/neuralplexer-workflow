@@ -121,7 +121,7 @@ def make_jobs(job_data: Dict,
         command += ["--sampler", job['parameters']['sampler']]
         command += ["--n-samples", job['parameters']['n-samples']]
         command += ["--chunk-size", job['parameters']['chunk-size']]
-        command += ["--num-steps", job['parameters']['num-steps']]
+        command += [f"--num-steps={job['parameters']['num-steps']}"]
         if cuda:
             command += ["--cuda"]
         jobs.append(command)
