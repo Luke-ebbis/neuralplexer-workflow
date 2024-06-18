@@ -93,6 +93,16 @@ command, this will launch the hardware intensive snakemake tasks as SLURM jobs.
 When `pixi run make` is executed, the snakemake pipeline sets up neuralplexer
 and predicts each listed complex in `data`. Additionally, summary statistics
 are calculated and plotted as shown below. These summary statistics end up in
-`results/analysis`
+`results/analysis`. Statistics and analysis include:
+
+* ramachandran plot.
+
+* residue wise plddt.
+
+* sasa surface Accessibility.
+
+* Number of steric clashes.
+
+* Identification of interacting residues using plip.
 
 ![](resources/pipeline.png)
