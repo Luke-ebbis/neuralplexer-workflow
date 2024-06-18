@@ -71,14 +71,17 @@ wildcard_constraints:
 ## 
 
 localrules: 
-  # calculate_beta_factor_profile,
   install_sdf,
+  install_neural_plexer_apptainer, 
+  download_neuralplexer_checkpoint_data, 
+  help, 
+  clean,
+  build_overview,
+  combine
+  # calculate_beta_factor_profile,
   # calculate_clashes,
   # calculate_ramachandran,
   # calculate_accessability_profile,
-  install_neural_plexer_apptainer, 
-  download_neuralplexer_checkpoint_data, 
-  help, clean, build_overview
 
 
 ## install_sdf:
@@ -144,14 +147,14 @@ rule unzip_neuralplexer_checkpoint_data:
 def get_neuralplexer_output_pdb(wildcards):
   checkpoint_output = checkpoints.run_neural_plexer.get(**wildcards).output[0]
   dirs = [f for f in os.listdir(checkpoint_output) if not f.startswith('.')]
-  out = [f"{checkpoint_output}/{d}/prot_all.pdb" for d in dirs]
+  out = [f"{checkpoint_output}/{d}/prot_all.pdb" for d in dirs if d==wildcards.name]
   return out
 
 
 def get_neuralplexer_output_folder(wildcards):
   checkpoint_output = checkpoints.run_neural_plexer.get(**wildcards).output[0]
   dirs = [f for f in os.listdir(checkpoint_output) if not f.startswith('.')]
-  out = [f"{checkpoint_output}/{d}/" for d in dirs]
+  out = [f"{checkpoint_output}/{d}/" for d in dirs if d == wildcards.name]
   return out
 
 ## run_neural_plexer:`
