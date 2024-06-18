@@ -9,6 +9,7 @@
 import json
 from pathlib import Path
 import os
+from itertools import chain
 
 
 DATA_DIR = "data/"
@@ -57,11 +58,13 @@ rule all:
   input:
     expand("{structure}.{metric}.csv",
         structure=STRUCTURES,
-        metric=METRICS)
+        metric=METRICS),
+    # expand("{structure}_plip",
+    #     structure=STRUCTURES)
 
 
 wildcard_constraints:
-    jobname="[\w-]+" # equivalent to {sample,\w+} - limits to alphabet letters
+    jobname="[\w-]+" # equivalent to {jobname,\w+} - limits to alphabet letters
 
 ## Rules
 ## =====
@@ -145,7 +148,13 @@ def get_neuralplexer_output_pdb(wildcards):
   return out
 
 
-## run_neural_plexer:
+def get_neuralplexer_output_folder(wildcards):
+  checkpoint_output = checkpoints.run_neural_plexer.get(**wildcards).output[0]
+  dirs = [f for f in os.listdir(checkpoint_output) if not f.startswith('.')]
+  out = [f"{checkpoint_output}/{d}/" for d in dirs]
+  return out
+
+## run_neural_plexer:`
 ##    Run the neuralplexer tool on a job directory, with a pdb file as the 
 ##    receptor and a SIF file as the ligand. Multiple SIF files are supported.
 ##
@@ -265,3 +274,35 @@ rule calculate_accessability_profile:
     "results/analysis/{jobname}/{name}.sasa.csv",
   script:
     "scripts/mol/surface.py"
+
+
+rule setup_plip:
+  conda:
+    "envs/plip.yml"
+  output:
+    "results/dependencies/plip.simg"
+  shell:
+    "wget -O {output} 'https://github.com/pharmai/plip/releases/download/v2.3.0/plip_v2.3.0.simg'"
+
+checkpoint combine:
+  conda:
+    "envs/mol.yml"
+  input:
+    get_neuralplexer_output_folder
+  output:
+    directory("results/processed/{jobname}/{name}-merged")
+  script:
+    "scripts/merge_sdf_pdb.py"
+
+# rule run_plip:
+#   conda:
+#     "envs/plip.yml"
+#   input:
+#     image="results/dependencies/plip.simg",
+#     structure=get_neuralplexer_output_pdb
+#   output:
+#     directory("results/analysis/{jobname}/{name}_plip")
+#   shell:
+#     "apptainer run {input.image} --file {input.structure} -o {output} -yvxpt"
+#
+#
